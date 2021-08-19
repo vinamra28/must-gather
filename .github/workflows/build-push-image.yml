@@ -24,30 +24,14 @@ jobs:
         uses: actions/checkout@v2
 
       # Login to redhat registry in order to pull the image
-      # - name: Login to redhat registry
-      #   uses: redhat-actions/podman-login@v1
-      #   with:
-      #     username: "${{ secrets.REDHAT_REGISTRY_USER }}"
-      #     password: "${{ secrets.REDHAT_REGISTRY_PASSWORD }}"
-      #     registry: ${{ secrets.REDHAT_IMAGE_REGISTRY }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+      - name: Login to redhat registry
+        uses: redhat-actions/podman-login@v1
         with:
-          registry: ${{ secrets.REDHAT_IMAGE_REGISTRY }}
           username: "${{ secrets.REDHAT_REGISTRY_USER }}"
           password: "${{ secrets.REDHAT_REGISTRY_PASSWORD }}"
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: ${{ env.IMAGE_REGISTRY }}/${{ secrets.REGISTRY_REPO }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAGS }}
+          registry: ${{ secrets.REDHAT_IMAGE_REGISTRY }}
 
-      # # Build image using Buildah action
+      # Build image using Buildah action
       # - name: Build Image
       #   id: build_image
       #   uses: redhat-actions/buildah-build@v2
@@ -55,17 +39,19 @@ jobs:
       #     image: ${{ env.IMAGE_NAME }}
       #     tags: ${{ env.IMAGE_TAGS }}
       #     dockerfiles: ./Dockerfile
+      - name: Build Image
+        run: buildah bud -f Dockerfile --format docker -t must-gather:4.8
 
-      # # Push the image to Quay.io (Image Registry)
-      # - name: Push To Quay
-      #   uses: redhat-actions/push-to-registry@v2
-      #   id: push
-      #   with:
-      #     image: ${{ steps.build_image.outputs.image }}
-      #     tags: ${{ steps.build_image.outputs.tags }}
-      #     registry: ${{ env.IMAGE_REGISTRY }}/${{ secrets.REGISTRY_REPO }}
-      #     username: ${{ secrets.REGISTRY_USER }}
-      #     password: ${{ secrets.REGISTRY_PASSWORD }}
-      # - name: Echo outputs
-      #   run: |
-      #     echo "${{ toJSON(steps.push.outputs) }}"
+      # Push the image to Quay.io (Image Registry)
+      - name: Push To Quay
+        uses: redhat-actions/push-to-registry@v2
+        id: push
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: ${{ steps.build_image.outputs.tags }}
+          registry: ${{ env.IMAGE_REGISTRY }}/${{ secrets.REGISTRY_REPO }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Echo outputs
+        run: |
+          echo "${{ toJSON(steps.push.outputs) }}"
