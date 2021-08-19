@@ -41,8 +41,8 @@ jobs:
       #     dockerfiles: ./Dockerfile
       - name: action
         run: |
-          podman login ${{ secrets.REDHAT_IMAGE_REGISTRY }} -u "${{ secrets.REDHAT_REGISTRY_USER }}" -p "${{ secrets.REDHAT_REGISTRY_PASSWORD }}"
-          buildah bud -f Dockerfile --format docker -t must-gather:4.8
+          docker login ${{ secrets.REDHAT_IMAGE_REGISTRY }} -u "${{ secrets.REDHAT_REGISTRY_USER }}" -p "${{ secrets.REDHAT_REGISTRY_PASSWORD }}"
+          buildah bud -f Dockerfile --format docker -t must-gather:4.8 --log-level=debug
 
       # Push the image to Quay.io (Image Registry)
       - name: Push To Quay
