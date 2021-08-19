@@ -1,4 +1,5 @@
-FROM registry.redhat.io/openshift-pipelines/pipelines-cli-tkn-rhel8:0.19.0-2 as tkn
+# FROM registry.redhat.io/openshift-pipelines/pipelines-cli-tkn-rhel8:0.19.0-2 as tkn
+FROM quay.io/vinamra2807/pipelines-cli-tkn-rhel8:0.19.0-2 as tkn
 
 FROM quay.io/openshift/origin-must-gather:4.8.0
 
