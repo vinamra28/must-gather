@@ -40,9 +40,16 @@ jobs:
       #     tags: ${{ env.IMAGE_TAGS }}
       #     dockerfiles: ./Dockerfile
       - name: docker
-        run: podman login ${{ secrets.REDHAT_IMAGE_REGISTRY }} -u "${{ secrets.REDHAT_REGISTRY_USER }}" -p "${{ secrets.REDHAT_REGISTRY_PASSWORD }}"
-      - name: buildah
-        run: buildah bud -f Dockerfile --format docker -t must-gather:4.8
+        run: docker login ${{ secrets.REDHAT_IMAGE_REGISTRY }} -u "${{ secrets.REDHAT_REGISTRY_USER }}" -p "${{ secrets.REDHAT_REGISTRY_PASSWORD }}"
+
+      # Build image using Buildah action
+      - name: Build Image
+        id: build_image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          tags: ${{ env.IMAGE_TAGS }}
+          dockerfiles: ./Dockerfile
 
       # Push the image to Quay.io (Image Registry)
       - name: Push To Quay
